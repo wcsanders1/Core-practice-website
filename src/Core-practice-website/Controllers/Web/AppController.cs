@@ -45,7 +45,7 @@ namespace Core_practice_website.Controllers.Web
 
                 ModelState.Clear();
 
-                ViewBag.UserMessage = "Message Sent";
+                ViewBag.UserMessssage = "Message Sent";
             }
             return View();
         }
