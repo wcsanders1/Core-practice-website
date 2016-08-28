@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Core_practice_website.Services;
 using Microsoft.Extensions.Configuration;
+using Core_practice_website.Models;
 
 namespace Core_practice_website
 {
@@ -43,6 +44,8 @@ namespace Core_practice_website
             {
                 // implement real mail service
             }
+
+            services.AddDbContext<WorldContext>();
             services.AddMvc();
         }
 

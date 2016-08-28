@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Core_practice_website.ViewModels;
 using Core_practice_website.Services;
 using Microsoft.Extensions.Configuration;
+using Core_practice_website.Models;
 
 namespace Core_practice_website.Controllers.Web
 {
@@ -14,16 +15,20 @@ namespace Core_practice_website.Controllers.Web
     {
         private IMailService _mailService;
         private IConfigurationRoot _config;
+        private WorldContext _context;
 
-        public AppController(IMailService mailService, IConfigurationRoot config)
+        public AppController(IMailService mailService, IConfigurationRoot config, WorldContext context)
         {
             _mailService = mailService;
             _config = config;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var data = _context.Trips.ToList();
+
+            return View(data);
         }
 
         public IActionResult Contact()
