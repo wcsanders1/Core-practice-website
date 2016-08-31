@@ -2,6 +2,7 @@
 using Core_practice_website.Models;
 using Core_practice_website.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +14,13 @@ namespace Core_practice_website.Controllers.Api
     [Route("api/trips")]
     public class TripsController : Controller
     {
+        private ILogger<TripsController> _logger;
         private IWorldRepository _repository;
 
-        public TripsController(IWorldRepository repository)
+        public TripsController(IWorldRepository repository, ILogger<TripsController> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         [HttpGet("")]
@@ -31,22 +34,30 @@ namespace Core_practice_website.Controllers.Api
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Failed to get All Trips. {ex}");
+
                 return BadRequest("Error occurred");
             }
         }
 
         [HttpPost("")]
-        public IActionResult Post([FromBody]TripViewModel theTrip)
+        public async Task<IActionResult> Post([FromBody]TripViewModel theTrip)
         {
             if (ModelState.IsValid)
             {
                 var newTrip = Mapper.Map<Trip>(theTrip);
+                _repository.AddTrip(newTrip);
 
-                return Created($"api/trips/{theTrip.Name}", Mapper.Map<TripViewModel>(newTrip));
+                if (await _repository.SaveChangesAsync())
+                {
+                    return Created($"api/trips/{theTrip.Name}", Mapper.Map<TripViewModel>(newTrip));
+                }
+                else
+                {
+                    return BadRequest("Failed to save changes to the database");
+                }
             }
-
-            return BadRequest(ModelState);
+            return BadRequest("Failed to save the trip");
         }
-
     }
 }
