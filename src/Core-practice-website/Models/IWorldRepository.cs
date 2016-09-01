@@ -9,7 +9,8 @@ namespace Core_practice_website.Models
         Trip GetTripByName(string tripName);
 
         void AddTrip(Trip trip);
+        void AddStop(string tripName, Stop newStop);
 
-        Task<bool> SaveChangesAsync();
+        Task<bool> SaveChangesAsync();       
     }
 }
