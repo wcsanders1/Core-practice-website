@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core_practice_website.Models;
+using Core_practice_website.Services;
 using Core_practice_website.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,13 +15,17 @@ namespace Core_practice_website.Controllers.Api
     [Route("/api/trips/{tripName}/stops")]
     public class StopsController : Controller
     {
+        private GeoCoordsService _coordsService;
         private ILogger<StopsController> _logger;
         private IWorldRepository _repository;
 
-        public StopsController(IWorldRepository repository, ILogger<StopsController> logger)
+        public StopsController(IWorldRepository repository,
+            ILogger<StopsController> logger,
+            GeoCoordsService coordsService)
         {
             _repository = repository;
             _logger = logger;
+            _coordsService = coordsService;
         }
 
         [HttpGet("")]
@@ -50,14 +55,24 @@ namespace Core_practice_website.Controllers.Api
                     var newStop = Mapper.Map<Stop>(vm);
 
                     // Look up Geocodes
-
-                    // Save to database
-                    _repository.AddStop(tripName, newStop);
-
-                    if (await _repository.SaveChangesAsync())
+                    var result = await _coordsService.GetCoordsAsync(newStop.Name);
+                    if (!result.Success)
                     {
-                        return Created($"/api/trips/{tripName}/stops/{newStop.Name}",
-                        Mapper.Map<StopViewModel>(newStop));
+                        _logger.LogError(result.Message);
+                    }
+                    else
+                    {
+                        newStop.Latitude = result.Latitude;
+                        newStop.Longitude = result.Longitude;
+
+                        // Save to database
+                        _repository.AddStop(tripName, newStop);
+
+                        if (await _repository.SaveChangesAsync())
+                        {
+                            return Created($"/api/trips/{tripName}/stops/{newStop.Name}",
+                            Mapper.Map<StopViewModel>(newStop));
+                        }
                     }
                 }
             }
