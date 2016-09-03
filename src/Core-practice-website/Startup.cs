@@ -13,6 +13,8 @@ using Core_practice_website.Models;
 using Newtonsoft.Json.Serialization;
 using AutoMapper;
 using Core_practice_website.ViewModels;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Core_practice_website
 {
@@ -63,6 +65,14 @@ namespace Core_practice_website
                 {
                     config.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
+
+            services.AddIdentity<WorldUser, IdentityRole>(config =>
+            {
+                config.User.RequireUniqueEmail = true;
+                config.Password.RequiredLength = 8;
+                config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+            })
+            .AddEntityFrameworkStores<WorldContext>();
             }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +81,10 @@ namespace Core_practice_website
                               WorldContextSeedData seeder,
                               ILoggerFactory factory)
         {
+            app.UseStaticFiles();
+
+            app.UseIdentity();
+
             Mapper.Initialize(config =>
             {
                 config.CreateMap<TripViewModel, Trip>().ReverseMap();
@@ -86,8 +100,6 @@ namespace Core_practice_website
             {
                 factory.AddDebug(LogLevel.Error);
             }
-
-            app.UseStaticFiles();
 
             app.UseMvc(config =>
             {

@@ -9,6 +9,7 @@ using Core_practice_website.Services;
 using Microsoft.Extensions.Configuration;
 using Core_practice_website.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Core_practice_website.Controllers.Web
 {
@@ -31,6 +32,12 @@ namespace Core_practice_website.Controllers.Web
         }
 
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Trips()
         {
             try
             {
