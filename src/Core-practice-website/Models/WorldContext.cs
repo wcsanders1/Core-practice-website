@@ -13,7 +13,7 @@ namespace Core_practice_website.Models
     {
         private IConfigurationRoot _config;
 
-        public WorldContext(IConfigurationRoot config, DbContextOptions options) : base(options)
+        public WorldContext(IConfigurationRoot config, DbContextOptions options) : base (options)
         {
             _config = config;
         }

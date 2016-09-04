@@ -28,7 +28,8 @@ namespace Core_practice_website.Models
                     Email = "sam.hastings@theworld.com"
                 };
 
-                await _userManager.CreateAsync(user, "P@ssw@rd!");
+                await _userManager.CreateAsync(user, "P@ssw@rd!2");
+                
             }
 
             if (!_context.Trips.Any())

@@ -7,7 +7,7 @@ using Core_practice_website.Models;
 
 namespace Corepracticewebsite.Migrations
 {
-    [DbContext(typeof(WorldContext))]
+    [DbContext(typeof(WorldUser))]
     [Migration("20160828212118_InitialDatabase")]
     partial class InitialDatabase
     {

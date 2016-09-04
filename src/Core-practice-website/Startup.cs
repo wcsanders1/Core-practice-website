@@ -15,6 +15,7 @@ using AutoMapper;
 using Core_practice_website.ViewModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Core_practice_website
 {
@@ -39,6 +40,30 @@ namespace Core_practice_website
         // For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc(config =>
+            {
+                if (_env.IsProduction())
+                {
+                    config.Filters.Add(new RequireHttpsAttribute());
+                }
+            })
+            .AddJsonOptions(config =>
+            {
+                config.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
+
+            services.AddIdentity<WorldUser, IdentityRole>(config =>
+            {
+                config.User.RequireUniqueEmail = true;
+                config.Password.RequiredLength = 8;
+                config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
+            })
+            .AddEntityFrameworkStores<WorldContext>();
+
+            services.AddDbContext<WorldContext>();
+
+            services.AddScoped<IWorldRepository, WorldRepository>();
+
             services.AddSingleton(_config);
 
             if (_env.IsEnvironment("Development") || _env.IsEnvironment("Testing"))
@@ -50,30 +75,12 @@ namespace Core_practice_website
                 // implement real mail service
             }
 
-            services.AddDbContext<WorldContext>();
-
-            services.AddScoped<IWorldRepository, WorldRepository>();
-
             services.AddTransient<GeoCoordsService>();
 
             services.AddTransient<WorldContextSeedData>();
 
             services.AddLogging();
-
-            services.AddMvc()
-                .AddJsonOptions(config =>
-                {
-                    config.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
-
-            services.AddIdentity<WorldUser, IdentityRole>(config =>
-            {
-                config.User.RequireUniqueEmail = true;
-                config.Password.RequiredLength = 8;
-                config.Cookies.ApplicationCookie.LoginPath = "/Auth/Login";
-            })
-            .AddEntityFrameworkStores<WorldContext>();
-            }
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
