@@ -2,6 +2,7 @@
 using Core_practice_website.Models;
 using Core_practice_website.Services;
 using Core_practice_website.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Core_practice_website.Controllers.Api
 {
+    [Authorize]
     [Route("/api/trips/{tripName}/stops")]
     public class StopsController : Controller
     {
@@ -33,7 +35,7 @@ namespace Core_practice_website.Controllers.Api
         {
             try
             {
-                var trip = _repository.GetTripByName(tripName);
+                var trip = _repository.GetTripByName(tripName, User.Identity.Name);
 
                 return Ok(Mapper.Map<IEnumerable<StopViewModel>>(trip.Stops.OrderBy(s => s.Order).ToList()));
             }
@@ -66,7 +68,7 @@ namespace Core_practice_website.Controllers.Api
                         newStop.Longitude = result.Longitude;
 
                         // Save to database
-                        _repository.AddStop(tripName, newStop);
+                        _repository.AddStop(tripName, User.Identity.Name, newStop);
 
                         if (await _repository.SaveChangesAsync())
                         {

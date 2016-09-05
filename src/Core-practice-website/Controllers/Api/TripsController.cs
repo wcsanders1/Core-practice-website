@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core_practice_website.Models;
 using Core_practice_website.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 namespace Core_practice_website.Controllers.Api
 {
     [Route("api/trips")]
+    [Authorize]
     public class TripsController : Controller
     {
         private ILogger<TripsController> _logger;
@@ -28,9 +30,10 @@ namespace Core_practice_website.Controllers.Api
         {
             try
             {
-                var results = _repository.GetAllTrips();
+                var trips = _repository.GetUserTripsWithStops(User.Identity.Name);
+                var results = Mapper.Map<IEnumerable<TripViewModel>>(trips);
 
-                return Ok(Mapper.Map<IEnumerable<TripViewModel>>(results));
+                return Ok(results);
             }
             catch (Exception ex)
             {
@@ -46,6 +49,7 @@ namespace Core_practice_website.Controllers.Api
             if (ModelState.IsValid)
             {
                 var newTrip = Mapper.Map<Trip>(theTrip);
+                newTrip.UserName = User.Identity.Name;
                 _repository.AddTrip(newTrip);
 
                 if (await _repository.SaveChangesAsync())
