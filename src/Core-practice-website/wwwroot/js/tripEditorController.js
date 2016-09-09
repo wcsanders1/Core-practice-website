@@ -16,6 +16,7 @@
             .then(function (response) {
                 //success
                 angular.copy(response.data, vm.stops);
+                _showMap(vm.stops);
             }, function (err) {
                 //failure
                 vm.errorMessage = "Failed to load stops";
@@ -24,4 +25,28 @@
                 vm.isBusy = false;
             });
     }
+
+    function _showMap(stops) {
+
+        if (stops && stops.length > 0) {
+
+            var mapStops = _.map(stops, function (item) {
+                return {
+                    lat: item.latitude,
+                    long: item.longitude,
+                    info: item.name
+                };
+            });
+
+            //Show map
+            travelMap.createMap({
+                stops: mapStops,
+                selector: "#map",
+                currentStop: 1,
+                initialZoom: 3
+            });
+        }
+
+    }
+
 })();
