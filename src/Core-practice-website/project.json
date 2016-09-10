@@ -36,7 +36,9 @@
   "publishOptions": {
     "include": [
       "wwwroot",
-      "web.config"
+      "web.config",
+      "Views",
+      "config.json"
     ]
   },
   "runtimeOptions": {
@@ -45,7 +47,9 @@
     }
   },
   "scripts": {
-    "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
+    "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ],
+    "prepublish": [ "npm install", "bower install" ],
+    "prepare": "gulp minify"
   },
   "tools": {
     "Microsoft.AspNetCore.Server.IISIntegration.Tools": {
